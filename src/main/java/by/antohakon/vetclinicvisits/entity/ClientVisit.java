@@ -1,6 +1,7 @@
 package by.antohakon.vetclinicvisits.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,7 +27,7 @@ public class ClientVisit {
     @Column(unique = true, nullable = false)
     private UUID visitId;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private UUID ownerId;
 
     @Column(nullable = false)
@@ -39,6 +40,7 @@ public class ClientVisit {
     private String reasonRequest;
 
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime visitDate;
 
     public ClientVisit(UUID ownerId, UUID doctorId, UUID animalId, String reasonRequest, LocalDateTime visitDate) {

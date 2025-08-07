@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -34,7 +35,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                 .doctorId(createVisitDto.doctorId())
                 .animalId(createVisitDto.animalId())
                 .reasonRequest(createVisitDto.reasonRequest())
-                .visitDate(createVisitDto.visitDate())
+                .visitDate(LocalDateTime.now())
                 .build();
         clientVisitRepository.save(clientVisit);
         log.info("successfully visit to DB : {}", clientVisit);
