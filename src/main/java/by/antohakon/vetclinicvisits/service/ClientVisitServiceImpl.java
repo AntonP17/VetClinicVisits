@@ -6,11 +6,14 @@ import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
 import by.antohakon.vetclinicvisits.dto.UpdateVisitDto;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,6 +26,8 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
 
     private final ClientVisitRepository clientVisitRepository;
+    private final KafkaTemplate<String,String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
 
     @Override
     public VisitInfoDto createVisit(CreateVisitDto createVisitDto) {
@@ -128,6 +133,15 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                 .build();
 
         log.info("return visitDto : {}", visitInfoDto);
+
+        try {
+            String json = objectMapper.writeValueAsString(visitInfoDto);
+            kafkaTemplate.send("animals_owners", json);
+            kafkaTemplate.send("doctors", json);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize order: {}", e.getMessage());
+        }
+
         return visitInfoDto;
 
     }
