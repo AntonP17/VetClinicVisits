@@ -26,6 +26,14 @@ public class KafkaConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic exceptionTopic() {
+        return TopicBuilder.name("exceptions")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
 
 
 }

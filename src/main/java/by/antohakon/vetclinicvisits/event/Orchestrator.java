@@ -1,0 +1,67 @@
+package by.antohakon.vetclinicvisits.event;
+
+import by.antohakon.vetclinicvisits.dto.AnimalAndOwnerEvent;
+import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
+import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
+import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class Orchestrator {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final ObjectMapper objectMapper;
+
+    public void sendMessage(VisitInfoDto visitInfoDto) {
+
+        try {
+            String json = objectMapper.writeValueAsString(visitInfoDto);
+            kafkaTemplate.send("animals_owners", json);
+            kafkaTemplate.send("doctors", json);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize order: {}", e.getMessage());
+        }
+
+    }
+
+    @KafkaListener(
+            topics = "${kafka.topic.two}",
+            groupId = "responseGroup"
+    )
+    public void listenException(String messageexception) {
+
+        log.error("Received exception: {}", messageexception);
+
+    }
+
+
+    @KafkaListener(
+            topics = "${kafka.topic.one}",
+            groupId = "responseGroup"
+    )
+    public void listenAnimalOwnersResponse(String message) {
+
+        AnimalAndOwnerEvent animalAndOwnerEvent = null;
+        try {
+            log.info("Take message {}", message);
+            animalAndOwnerEvent = objectMapper.readValue(message, AnimalAndOwnerEvent.class);
+
+            log.info("after parsing {}", animalAndOwnerEvent.toString());
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse order from JSON: {}", message, e);
+        }
+
+        log.info("AnimalOwners response: {}", animalAndOwnerEvent.toString());
+    }
+
+}

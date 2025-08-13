@@ -5,6 +5,7 @@ import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
 import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
 import by.antohakon.vetclinicvisits.dto.UpdateVisitDto;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
+import by.antohakon.vetclinicvisits.event.Orchestrator;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,10 +25,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClientVisitServiceImpl implements ClientVisitService {
 
-
     private final ClientVisitRepository clientVisitRepository;
-    private final KafkaTemplate<String,String> kafkaTemplate;
-    private final ObjectMapper objectMapper;
+    private final Orchestrator orchestrator;
 
     @Override
     public VisitInfoDto createVisit(CreateVisitDto createVisitDto) {
@@ -134,13 +133,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
         log.info("return visitDto : {}", visitInfoDto);
 
-        try {
-            String json = objectMapper.writeValueAsString(visitInfoDto);
-            kafkaTemplate.send("animals_owners", json);
-            kafkaTemplate.send("doctors", json);
-        } catch (JsonProcessingException e) {
-            log.error("Failed to serialize order: {}", e.getMessage());
-        }
+        orchestrator.sendMessage(visitInfoDto);
 
         return visitInfoDto;
 
