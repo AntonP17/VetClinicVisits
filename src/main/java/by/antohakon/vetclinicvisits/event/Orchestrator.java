@@ -2,6 +2,7 @@ package by.antohakon.vetclinicvisits.event;
 
 import by.antohakon.vetclinicvisits.dto.AnimalAndOwnerEvent;
 import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
+import by.antohakon.vetclinicvisits.dto.EmployeEvent;
 import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -62,6 +63,25 @@ public class Orchestrator {
         }
 
         log.info("AnimalOwners response: {}", animalAndOwnerEvent.toString());
+    }
+
+    @KafkaListener(
+            topics = "${kafka.topic.three}",
+            groupId = "responseGroup"
+    )
+    public void listenDoctorsResponse(String message) {
+
+        EmployeEvent employeEvent = null;
+        try {
+            log.info("Take message {}", message);
+            employeEvent = objectMapper.readValue(message, EmployeEvent.class);
+            log.info("after parsing {}", employeEvent.toString());
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse order from JSON: {}", message, e);
+        }
+
+        log.info("Doctors response: {}", employeEvent.toString());
+
     }
 
 }
