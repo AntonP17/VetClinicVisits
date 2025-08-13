@@ -4,7 +4,9 @@ import by.antohakon.vetclinicvisits.dto.AnimalAndOwnerEvent;
 import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
 import by.antohakon.vetclinicvisits.dto.EmployeEvent;
 import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
+import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
+import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +24,14 @@ public class Orchestrator {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
+    private final VisitFullInfoRepository visitFullInfoRepository;
 
     public void sendMessage(VisitInfoDto visitInfoDto) {
 
         try {
             String json = objectMapper.writeValueAsString(visitInfoDto);
-            kafkaTemplate.send("animals_owners", json);
-            kafkaTemplate.send("doctors", json);
+            kafkaTemplate.send("animals_owners",visitInfoDto.visitId().toString() , json);
+            kafkaTemplate.send("doctors",visitInfoDto.visitId().toString(), json);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order: {}", e.getMessage());
         }
@@ -56,13 +59,18 @@ public class Orchestrator {
         try {
             log.info("Take message {}", message);
             animalAndOwnerEvent = objectMapper.readValue(message, AnimalAndOwnerEvent.class);
-
             log.info("after parsing {}", animalAndOwnerEvent.toString());
         } catch (JsonProcessingException e) {
             log.error("Failed to parse order from JSON: {}", message, e);
         }
-
         log.info("AnimalOwners response: {}", animalAndOwnerEvent.toString());
+
+        VisitFullInfo visitFullInfo = visitFullInfoRepository.findByVisitId(animalAndOwnerEvent.visitId());
+        visitFullInfo.setOwner(animalAndOwnerEvent.fullName());
+        visitFullInfo.setAnimal(animalAndOwnerEvent.animalName());
+        visitFullInfoRepository.save(visitFullInfo);
+
+        log.info("sucessfully update visitFullInfo");
     }
 
     @KafkaListener(
@@ -82,6 +90,10 @@ public class Orchestrator {
 
         log.info("Doctors response: {}", employeEvent.toString());
 
-    }
+        VisitFullInfo visitFullInfo = visitFullInfoRepository.findByVisitId(employeEvent.visitId());
+        visitFullInfo.setDoctor(employeEvent.fullName());
+        visitFullInfoRepository.save(visitFullInfo);
 
+        log.info("sucessfully update visitFullInfo");
+    }
 }

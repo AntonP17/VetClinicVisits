@@ -1,9 +1,6 @@
 package by.antohakon.vetclinicvisits.controller;
 
-import by.antohakon.vetclinicvisits.dto.ClientVisitDto;
-import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
-import by.antohakon.vetclinicvisits.dto.UpdateVisitDto;
-import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
+import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.service.ClientVisitServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +27,12 @@ public class ClientVisitController {
     @ResponseStatus(value = HttpStatus.OK)
     public VisitInfoDto getClientVisitById(@PathVariable UUID visitId) {
         return clientVisitService.getVisitById(visitId);
+    }
+
+    @GetMapping("/info/{visitId}")
+    @ResponseStatus(value = HttpStatus.OK)
+    public VisitFullInfoDto getFullVisitInfoById(@PathVariable UUID visitId) {
+       return clientVisitService.getFullVisitById(visitId);
     }
 
     @GetMapping("/byAnimalId/{animalId}")

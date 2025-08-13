@@ -1,12 +1,11 @@
 package by.antohakon.vetclinicvisits.service;
 
-import by.antohakon.vetclinicvisits.dto.ClientVisitDto;
-import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
-import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
-import by.antohakon.vetclinicvisits.dto.UpdateVisitDto;
+import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
+import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
 import by.antohakon.vetclinicvisits.event.Orchestrator;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
+import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +25,7 @@ import java.util.UUID;
 public class ClientVisitServiceImpl implements ClientVisitService {
 
     private final ClientVisitRepository clientVisitRepository;
+    private final VisitFullInfoRepository visitFullInfoRepository;
     private final Orchestrator orchestrator;
 
     @Override
@@ -41,7 +41,17 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                 .reasonRequest(createVisitDto.reasonRequest())
                 .visitDate(LocalDateTime.now())
                 .build();
+
         clientVisitRepository.save(clientVisit);
+        visitFullInfoRepository.save(VisitFullInfo.builder()
+                .visitId(clientVisit.getVisitId())
+                .owner(null)
+                .doctor(null)
+                .animal(null)
+                .reasonRequest(clientVisit.getReasonRequest())
+                .visitDate(clientVisit.getVisitDate())
+                .build());
+
         log.info("successfully visit to DB : {}", clientVisit);
 
         VisitInfoDto visitInfoDto = VisitInfoDto.builder()
@@ -52,6 +62,8 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                 .reasonRequest(clientVisit.getReasonRequest())
                 .visitDate(clientVisit.getVisitDate())
                 .build();
+
+        orchestrator.sendMessage(visitInfoDto);
 
         log.info("return visitDto : {}", visitInfoDto);
         return visitInfoDto;
@@ -133,11 +145,35 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
         log.info("return visitDto : {}", visitInfoDto);
 
-        orchestrator.sendMessage(visitInfoDto);
+        // orchestrator.sendMessage(visitInfoDto);
 
         return visitInfoDto;
 
     }
+
+    @Override
+    public VisitFullInfoDto getFullVisitById(UUID id) {
+        log.info("method getFullVisitById");
+        log.info("try get visit to DB : {}", id);
+        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
+        if (findVisit == null) {
+            throw new RuntimeException("Visit not found with id: " + id);
+        }
+
+        log.info("successfully visit to DB : {}", findVisit);
+        VisitFullInfoDto visitFullInfoDto = VisitFullInfoDto.builder()
+                .visitId(findVisit.getVisitId())
+                .owner(findVisit.getOwner())
+                .doctor(findVisit.getDoctor())
+                .animal(findVisit.getAnimal())
+                .reasonRequest(findVisit.getReasonRequest())
+                .visitDate(findVisit.getVisitDate())
+                .build();
+
+        log.info("return visitFullInfoDto : {}", visitFullInfoDto);
+        return visitFullInfoDto;
+    }
+
 
     @Override
     public VisitInfoDto updateVisitById(UpdateVisitDto updateVisitDto, UUID visitId) {
@@ -145,14 +181,17 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         log.info("method updateVisitById");
         log.info("try find visit to DB : {}", visitId);
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(visitId);
-        if (findClientVisit == null) {
+        VisitFullInfo findVisitFullInfo = visitFullInfoRepository.findByVisitId(visitId);
+        if (findClientVisit == null && findVisitFullInfo == null) {
             throw new RuntimeException("Visit not found with id: " + visitId);
         }
         log.info("successfully find visit to DB : {}", findClientVisit);
 
         log.info("try update visit to DB ");
         findClientVisit.setReasonRequest(updateVisitDto.reasonRequest());
+        findVisitFullInfo.setReasonRequest(updateVisitDto.reasonRequest());
         clientVisitRepository.save(findClientVisit);
+        visitFullInfoRepository.save(findVisitFullInfo);
         log.info("successfully update visit to DB : {}", findClientVisit);
 
         VisitInfoDto visitInfoDto = VisitInfoDto.builder()
@@ -174,12 +213,15 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         log.info("method deleteVisit");
         log.info("try find visit to DB : {}", visitId);
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(visitId);
-        if (findClientVisit == null) {
+        VisitFullInfo fullVisitInfo = visitFullInfoRepository.findByVisitId(visitId);
+        if (findClientVisit == null && fullVisitInfo == null) {
             throw new RuntimeException("Visit not found with id: " + visitId);
         }
+
         log.info("successfully find visit to DB : {}", findClientVisit);
 
         clientVisitRepository.delete(findClientVisit);
+        visitFullInfoRepository.delete(fullVisitInfo);
         log.info("successfully delete visit to DB : {}", findClientVisit);
 
     }
