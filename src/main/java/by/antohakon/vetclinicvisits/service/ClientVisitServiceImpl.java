@@ -4,6 +4,7 @@ import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
 import by.antohakon.vetclinicvisits.event.Orchestrator;
+import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -130,7 +131,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         log.info("try get visit to DB : {}", id);
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(id);
         if (findClientVisit == null) {
-            throw new RuntimeException("Visit not found with id: " + id);
+            throw new VisitNotFoundException("Visit not found with id: " + id);
         }
 
         log.info("successfully visit to DB : {}", findClientVisit);
@@ -145,8 +146,6 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
         log.info("return visitDto : {}", visitInfoDto);
 
-        // orchestrator.sendMessage(visitInfoDto);
-
         return visitInfoDto;
 
     }
@@ -157,7 +156,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         log.info("try get visit to DB : {}", id);
         VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
         if (findVisit == null) {
-            throw new RuntimeException("Visit not found with id: " + id);
+            throw new VisitNotFoundException("Visit not found with id: " + id);
         }
 
         log.info("successfully visit to DB : {}", findVisit);
@@ -183,7 +182,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(visitId);
         VisitFullInfo findVisitFullInfo = visitFullInfoRepository.findByVisitId(visitId);
         if (findClientVisit == null && findVisitFullInfo == null) {
-            throw new RuntimeException("Visit not found with id: " + visitId);
+            throw new VisitNotFoundException("Visit not found with id: " + visitId);
         }
         log.info("successfully find visit to DB : {}", findClientVisit);
 
@@ -215,7 +214,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(visitId);
         VisitFullInfo fullVisitInfo = visitFullInfoRepository.findByVisitId(visitId);
         if (findClientVisit == null && fullVisitInfo == null) {
-            throw new RuntimeException("Visit not found with id: " + visitId);
+            throw new VisitNotFoundException("Visit not found with id: " + visitId);
         }
 
         log.info("successfully find visit to DB : {}", findClientVisit);
