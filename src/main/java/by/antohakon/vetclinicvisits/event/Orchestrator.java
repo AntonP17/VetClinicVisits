@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +55,7 @@ public class Orchestrator {
             topics = "${kafka.topic.one}",
             groupId = "responseGroup"
     )
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void listenAnimalOwnersResponse(String message) {
 
         AnimalAndOwnerEvent animalAndOwnerEvent = null;
@@ -77,6 +80,7 @@ public class Orchestrator {
             topics = "${kafka.topic.three}",
             groupId = "responseGroup"
     )
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void listenDoctorsResponse(String message) {
 
         EmployeEvent employeEvent = null;
