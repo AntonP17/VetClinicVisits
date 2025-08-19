@@ -85,6 +85,21 @@ public class ClientVisitServiceImpl implements ClientVisitService {
     }
 
     @Override
+    public Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable) {
+
+        log.info("method getAllVisitFullInfo");
+        return visitFullInfoRepository.findAll(pageable)
+                .map(visit -> ClientVisitFullInfoDto.builder()
+                        .visitId(visit.getVisitId())
+                        .doctor(visit.getDoctor())
+                        .animal(visit.getAnimal())
+                        .visitDate(visit.getVisitDate())
+                        .build());
+
+    }
+
+
+    @Override
     public Page<ClientVisitDto> getAllVisitsByAnimalId(UUID animalId, Pageable pageable) {
 
         log.info("method getAllVisitsByAnimalId");

@@ -1,15 +1,15 @@
 package by.antohakon.vetclinicvisits.event;
 
-import by.antohakon.vetclinicvisits.dto.AnimalAndOwnerEvent;
-import by.antohakon.vetclinicvisits.dto.CreateVisitDto;
-import by.antohakon.vetclinicvisits.dto.EmployeEvent;
-import by.antohakon.vetclinicvisits.dto.VisitInfoDto;
+import by.antohakon.vetclinicvisits.dto.*;
+import by.antohakon.vetclinicvisits.entity.ClientVisit;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
+import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +27,7 @@ public class Orchestrator {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
     private final VisitFullInfoRepository visitFullInfoRepository;
+    private final ClientVisitRepository clientVisitRepository;
 
     public void sendMessage(VisitInfoDto visitInfoDto) {
 
@@ -40,13 +41,29 @@ public class Orchestrator {
 
     }
 
+    @SneakyThrows
     @KafkaListener(
             topics = "${kafka.topic.two}",
             groupId = "responseGroup"
     )
     public void listenException(String messageexception) {
 
-        log.error("Received exception: {}", messageexception);
+        ExceptionNotFoundDto exceptionNotFoundDto = objectMapper.readValue(messageexception, ExceptionNotFoundDto.class);
+        log.error("Received exception: {}", exceptionNotFoundDto.errorMessage());
+
+        log.info("try find visit to DB : {}", exceptionNotFoundDto.visitId());
+        ClientVisit findClientVisit = clientVisitRepository.findByVisitId(exceptionNotFoundDto.visitId());
+        VisitFullInfo fullVisitInfo = visitFullInfoRepository.findByVisitId(exceptionNotFoundDto.visitId());
+        if (findClientVisit == null && fullVisitInfo == null) {
+            throw new VisitNotFoundException("Visit not found with id: " + exceptionNotFoundDto.visitId());
+        }
+
+        log.info("successfully find visit to DB : {}", findClientVisit);
+
+        clientVisitRepository.delete(findClientVisit);
+        visitFullInfoRepository.delete(fullVisitInfo);
+        log.info("successfully delete visit to DB : {}", findClientVisit);
+
 
     }
 
@@ -69,6 +86,9 @@ public class Orchestrator {
         log.info("AnimalOwners response: {}", animalAndOwnerEvent.toString());
 
         VisitFullInfo visitFullInfo = visitFullInfoRepository.findByVisitId(animalAndOwnerEvent.visitId());
+        if (visitFullInfo == null) {
+            throw new VisitNotFoundException("Visit not found with id: " + animalAndOwnerEvent.visitId());
+        }
         visitFullInfo.setOwner(animalAndOwnerEvent.fullName());
         visitFullInfo.setAnimal(animalAndOwnerEvent.animalName());
         visitFullInfoRepository.save(visitFullInfo);
@@ -95,6 +115,9 @@ public class Orchestrator {
         log.info("Doctors response: {}", employeEvent.toString());
 
         VisitFullInfo visitFullInfo = visitFullInfoRepository.findByVisitId(employeEvent.visitId());
+        if (visitFullInfo == null) {
+            throw new VisitNotFoundException("Visit not found with id: " + employeEvent.visitId());
+        }
         visitFullInfo.setDoctor(employeEvent.fullName());
         visitFullInfoRepository.save(visitFullInfo);
 

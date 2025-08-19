@@ -29,7 +29,7 @@ public class ClientVisitController {
         return clientVisitService.getVisitById(visitId);
     }
 
-    @GetMapping("/info/{visitId}")
+    @GetMapping("/{visitId}/info")
     @ResponseStatus(value = HttpStatus.OK)
     public VisitFullInfoDto getFullVisitInfoById(@PathVariable UUID visitId) {
        return clientVisitService.getFullVisitById(visitId);
