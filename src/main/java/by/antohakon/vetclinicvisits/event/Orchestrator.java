@@ -2,6 +2,7 @@ package by.antohakon.vetclinicvisits.event;
 
 import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
+import by.antohakon.vetclinicvisits.entity.Status;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
 import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
@@ -33,8 +34,19 @@ public class Orchestrator {
 
         try {
             String json = objectMapper.writeValueAsString(visitInfoDto);
+
+            VisitStatusEventDto visitStatusEventDto = VisitStatusEventDto.builder()
+                    .visitId(visitInfoDto.visitId())
+                    .doctorStatus(Status.PROCESSING)
+                    .animalStatus(Status.PROCESSING)
+                    .ownerStatus(Status.PROCESSING)
+                    .comment("create new visit")
+                    .build();
+
+            String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
             kafkaTemplate.send("animals_owners",visitInfoDto.visitId().toString() , json);
             kafkaTemplate.send("doctors",visitInfoDto.visitId().toString(), json);
+            kafkaTemplate.send("analytics",visitInfoDto.visitId().toString(), jsonAnalitics);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order: {}", e.getMessage());
         }
