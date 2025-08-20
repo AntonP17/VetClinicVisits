@@ -8,8 +8,6 @@ import java.util.UUID;
 
 @Builder
 public record VisitStatusEventDto (UUID visitId,
-                                   Status doctorStatus,
-                                   Status animalStatus,
-                                   Status ownerStatus,
+                                   Status status,
                                    String comment){
 }
