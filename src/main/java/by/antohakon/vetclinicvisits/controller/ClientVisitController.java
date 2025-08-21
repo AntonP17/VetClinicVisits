@@ -2,6 +2,7 @@ package by.antohakon.vetclinicvisits.controller;
 
 import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.service.ClientVisitServiceImpl;
+import by.antohakon.vetclinicvisits.service.VisitFullInfoServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,11 +18,18 @@ import java.util.UUID;
 public class ClientVisitController {
 
     private final ClientVisitServiceImpl clientVisitService;
+    private final VisitFullInfoServiceImpl visitFullInfoService;
 
     @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
     public Page<ClientVisitDto> getAllClientVisits(@PageableDefault(size = 5) Pageable pageable) {
         return clientVisitService.getAllVisits(pageable);
+    }
+
+    @GetMapping("/info")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Page<ClientVisitFullInfoDto> getAllClientVisitsFullInfo(Pageable pageable) {
+        return visitFullInfoService.getAllVisitFullInfo(pageable);
     }
 
     @GetMapping("/{visitId}")
@@ -33,25 +41,43 @@ public class ClientVisitController {
     @GetMapping("/{visitId}/info")
     @ResponseStatus(value = HttpStatus.OK)
     public VisitFullInfoDto getFullVisitInfoById(@PathVariable UUID visitId) {
-       return clientVisitService.getFullVisitById(visitId);
+       return visitFullInfoService.getFullVisitById(visitId);
     }
 
-    @GetMapping("/byAnimalId/{animalId}")
+    @GetMapping("/byAnimal/{animalId}")
     @ResponseStatus(value = HttpStatus.OK)
     public Page<ClientVisitDto> getAllVisitsByAnimalId(@PathVariable UUID animalId, Pageable pageable) {
         return clientVisitService.getAllVisitsByAnimalId(animalId, pageable);
     }
 
-    @GetMapping("/byOwnerId/{ownerId}")
+    @GetMapping("/byAnimal")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Page<ClientVisitFullInfoDto> getAllVisitsByAnimalName(@RequestParam String animalName, Pageable pageable) {
+        return visitFullInfoService.getAllVisitsByAnimalName(animalName,pageable);
+    }
+
+    @GetMapping("/byOwner/{ownerId}")
     @ResponseStatus(value = HttpStatus.OK)
     public Page<ClientVisitDto> getAllVisitsByOwnerId(@PathVariable UUID ownerId, Pageable pageable) {
         return clientVisitService.getAllVisitsByOwnerId(ownerId, pageable);
     }
 
-    @GetMapping("/byDoctorId/{doctorId}")
+    @GetMapping("/byOwner")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Page<ClientVisitFullInfoDto> getAllVisitsByOwnerName(@RequestParam String ownerFullName, Pageable pageable) {
+        return visitFullInfoService.getAllVisitsByOwnerFullName(ownerFullName,pageable);
+    }
+
+    @GetMapping("/byDoctor/{doctorId}")
     @ResponseStatus(value = HttpStatus.OK)
     public Page<ClientVisitDto> getAllVisitsByDoctorId(@PathVariable UUID doctorId, Pageable pageable) {
         return clientVisitService.getAllVisitsByDoctorId(doctorId, pageable);
+    }
+
+    @GetMapping("/byDoctor")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Page<ClientVisitFullInfoDto> getAllVisitsByDoctorName(@RequestParam String doctorFullName, Pageable pageable) {
+        return visitFullInfoService.getAllVisitsByDoctorFullName(doctorFullName,pageable);
     }
 
     @PostMapping
