@@ -34,6 +34,14 @@ public class KafkaConfig {
                 .build();
     }
 
+    @Bean
+    public NewTopic analiticTopic() {
+        return TopicBuilder.name("analytics")
+                .partitions(3)
+                .replicas(1)
+                .build();
+    }
+
 
 
 }

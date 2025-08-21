@@ -10,12 +10,12 @@ public interface ClientVisitService {
 
     VisitInfoDto createVisit(CreateVisitDto createVisitDto);
     Page<ClientVisitDto> getAllVisits(Pageable pageable);
-    Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable);
+  //  Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable);
     Page<ClientVisitDto> getAllVisitsByAnimalId(UUID animalId, Pageable pageable);
     Page<ClientVisitDto> getAllVisitsByDoctorId(UUID doctorID, Pageable pageable);
     Page<ClientVisitDto> getAllVisitsByOwnerId(UUID ownerId, Pageable pageable);
     VisitInfoDto getVisitById(UUID id);
-    VisitFullInfoDto getFullVisitById(UUID id);
+  //  VisitFullInfoDto getFullVisitById(UUID id);
     VisitInfoDto updateVisitById(UpdateVisitDto updateVisitDto, UUID visitId);
     void deleteVisit(UUID id);
 

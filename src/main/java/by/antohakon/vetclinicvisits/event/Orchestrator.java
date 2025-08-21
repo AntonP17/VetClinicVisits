@@ -2,6 +2,7 @@ package by.antohakon.vetclinicvisits.event;
 
 import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
+import by.antohakon.vetclinicvisits.entity.Status;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
 import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
@@ -33,8 +34,20 @@ public class Orchestrator {
 
         try {
             String json = objectMapper.writeValueAsString(visitInfoDto);
-            kafkaTemplate.send("animals_owners",visitInfoDto.visitId().toString() , json);
-            kafkaTemplate.send("doctors",visitInfoDto.visitId().toString(), json);
+            log.info("try send message : {}", json);
+            VisitStatusEventDto visitStatusEventDto = VisitStatusEventDto.builder()
+                    .visitId(visitInfoDto.visitId())
+                    .status(Status.PROCESSING)
+                    .comment("create new visit")
+                    .build();
+
+            String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
+            kafkaTemplate.send("animals_owners", visitInfoDto.visitId().toString(), json);
+            kafkaTemplate.send("doctors", visitInfoDto.visitId().toString(), json);
+            kafkaTemplate.send("analytics", visitInfoDto.visitId().toString(), jsonAnalitics);
+
+            log.info("send message Kafka: {}", json);
+            log.info("send message Analitic: {}", jsonAnalitics);
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order: {}", e.getMessage());
         }
@@ -52,8 +65,10 @@ public class Orchestrator {
         log.error("Received exception: {}", exceptionNotFoundDto.errorMessage());
 
         log.info("try find visit to DB : {}", exceptionNotFoundDto.visitId());
+
         ClientVisit findClientVisit = clientVisitRepository.findByVisitId(exceptionNotFoundDto.visitId());
         VisitFullInfo fullVisitInfo = visitFullInfoRepository.findByVisitId(exceptionNotFoundDto.visitId());
+
         if (findClientVisit == null && fullVisitInfo == null) {
             throw new VisitNotFoundException("Visit not found with id: " + exceptionNotFoundDto.visitId());
         }
@@ -64,7 +79,17 @@ public class Orchestrator {
         visitFullInfoRepository.delete(fullVisitInfo);
         log.info("successfully delete visit to DB : {}", findClientVisit);
 
+        log.info("try send messege Analitic");
+        VisitStatusEventDto visitStatusEventDto = VisitStatusEventDto.builder()
+                .visitId(exceptionNotFoundDto.visitId())
+                .status(Status.FAILED)
+                .comment(exceptionNotFoundDto.errorMessage())
+                .build();
 
+        String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
+        kafkaTemplate.send("analytics", exceptionNotFoundDto.visitId().toString(), jsonAnalitics);
+
+        log.info("sucesses send message Analitic: {}", jsonAnalitics);
     }
 
 
@@ -73,7 +98,7 @@ public class Orchestrator {
             groupId = "responseGroup"
     )
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void listenAnimalOwnersResponse(String message) {
+    public void listenAnimalOwnersResponse(String message) throws JsonProcessingException {
 
         AnimalAndOwnerEvent animalAndOwnerEvent = null;
         try {
@@ -94,6 +119,17 @@ public class Orchestrator {
         visitFullInfoRepository.save(visitFullInfo);
 
         log.info("sucessfully update visitFullInfo");
+
+        log.info("try send messege Analitic");
+        VisitStatusEventDto visitStatusEventDto = VisitStatusEventDto.builder()
+                .visitId(visitFullInfo.getVisitId())
+                .status(Status.SUCCESS)
+                .comment("ACEPTED")
+                .build();
+
+        String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
+        kafkaTemplate.send("analytics", visitFullInfo.getVisitId().toString(), jsonAnalitics);
+        log.info("sucesses send message Analitic: {}", jsonAnalitics);
     }
 
     @KafkaListener(
@@ -101,7 +137,7 @@ public class Orchestrator {
             groupId = "responseGroup"
     )
     @Transactional(isolation = Isolation.REPEATABLE_READ)
-    public void listenDoctorsResponse(String message) {
+    public void listenDoctorsResponse(String message) throws JsonProcessingException {
 
         EmployeEvent employeEvent = null;
         try {
@@ -122,5 +158,16 @@ public class Orchestrator {
         visitFullInfoRepository.save(visitFullInfo);
 
         log.info("sucessfully update visitFullInfo");
+
+        log.info("try send messege Analitic");
+        VisitStatusEventDto visitStatusEventDto = VisitStatusEventDto.builder()
+                .visitId(visitFullInfo.getVisitId())
+                .status(Status.SUCCESS)
+                .comment("ACEPTED")
+                .build();
+
+        String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
+        kafkaTemplate.send("analytics", visitFullInfo.getVisitId().toString(), jsonAnalitics);
+        log.info("sucesses send message Analitic: {}", jsonAnalitics);
     }
 }

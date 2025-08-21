@@ -83,20 +83,20 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                         .build());
 
     }
-
-    @Override
-    public Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable) {
-
-        log.info("method getAllVisitFullInfo");
-        return visitFullInfoRepository.findAll(pageable)
-                .map(visit -> ClientVisitFullInfoDto.builder()
-                        .visitId(visit.getVisitId())
-                        .doctor(visit.getDoctor())
-                        .animal(visit.getAnimal())
-                        .visitDate(visit.getVisitDate())
-                        .build());
-
-    }
+///// //////////
+//    @Override
+//    public Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable) {
+//
+//        log.info("method getAllVisitFullInfo");
+//        return visitFullInfoRepository.findAll(pageable)
+//                .map(visit -> ClientVisitFullInfoDto.builder()
+//                        .visitId(visit.getVisitId())
+//                        .doctor(visit.getDoctor())
+//                        .animal(visit.getAnimal())
+//                        .visitDate(visit.getVisitDate())
+//                        .build());
+//
+//    }
 
 
     @Override
@@ -165,28 +165,29 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
     }
 
-    @Override
-    public VisitFullInfoDto getFullVisitById(UUID id) {
-        log.info("method getFullVisitById");
-        log.info("try get visit to DB : {}", id);
-        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
-        if (findVisit == null) {
-            throw new VisitNotFoundException("Visit not found with id: " + id);
-        }
-
-        log.info("successfully visit to DB : {}", findVisit);
-        VisitFullInfoDto visitFullInfoDto = VisitFullInfoDto.builder()
-                .visitId(findVisit.getVisitId())
-                .owner(findVisit.getOwner())
-                .doctor(findVisit.getDoctor())
-                .animal(findVisit.getAnimal())
-                .reasonRequest(findVisit.getReasonRequest())
-                .visitDate(findVisit.getVisitDate())
-                .build();
-
-        log.info("return visitFullInfoDto : {}", visitFullInfoDto);
-        return visitFullInfoDto;
-    }
+//    /// /////////////////////
+//    @Override
+//    public VisitFullInfoDto getFullVisitById(UUID id) {
+//        log.info("method getFullVisitById");
+//        log.info("try get visit to DB : {}", id);
+//        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
+//        if (findVisit == null) {
+//            throw new VisitNotFoundException("Visit not found with id: " + id);
+//        }
+//
+//        log.info("successfully visit to DB : {}", findVisit);
+//        VisitFullInfoDto visitFullInfoDto = VisitFullInfoDto.builder()
+//                .visitId(findVisit.getVisitId())
+//                .owner(findVisit.getOwner())
+//                .doctor(findVisit.getDoctor())
+//                .animal(findVisit.getAnimal())
+//                .reasonRequest(findVisit.getReasonRequest())
+//                .visitDate(findVisit.getVisitDate())
+//                .build();
+//
+//        log.info("return visitFullInfoDto : {}", visitFullInfoDto);
+//        return visitFullInfoDto;
+//    }
 
 
     @Override
