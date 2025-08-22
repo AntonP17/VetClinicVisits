@@ -14,7 +14,7 @@ public class KafkaConfig {
     public NewTopic clientsTopic() {
         return TopicBuilder.name("animals_owners")
                 .partitions(3)
-                .replicas(1)
+                .replicas(2)
                 .build();
     }
 
@@ -22,7 +22,7 @@ public class KafkaConfig {
     public NewTopic doctorsTopic() {
         return TopicBuilder.name("doctors")
                 .partitions(3)
-                .replicas(1)
+                .replicas(2)
                 .build();
     }
 
@@ -30,7 +30,7 @@ public class KafkaConfig {
     public NewTopic exceptionTopic() {
         return TopicBuilder.name("exceptions")
                 .partitions(3)
-                .replicas(1)
+                .replicas(2)
                 .build();
     }
 
@@ -38,7 +38,7 @@ public class KafkaConfig {
     public NewTopic analiticTopic() {
         return TopicBuilder.name("analytics")
                 .partitions(3)
-                .replicas(1)
+                .replicas(2)
                 .build();
     }
 
