@@ -8,6 +8,7 @@ import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -74,14 +75,16 @@ public class VisitFullInfoServiceImpl implements VisitFullInfoService {
                         .build());
     }
 
-    @Override
-    public VisitFullInfoDto getFullVisitById(UUID id) {
+    @Override /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // вот тут кейс с кэшем визита посмотреть когда из двух микров кэшируется то при удалении из одного этот может остаться
+    @Cacheable(value = "full_visit_client_cache", key = "#visitId")
+    public VisitFullInfoDto getFullVisitById(UUID visitId) {
 
         log.info("method getFullVisitById");
-        log.info("try get visit to DB : {}", id);
-        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
+        log.info("try get visit to DB : {}", visitId);
+        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(visitId);
         if (findVisit == null) {
-            throw new VisitNotFoundException("Visit not found with id: " + id);
+            throw new VisitNotFoundException("Visit not found with id: " + visitId);
         }
 
         log.info("successfully visit to DB : {}", findVisit);

@@ -11,6 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -83,20 +86,6 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                         .build());
 
     }
-///// //////////
-//    @Override
-//    public Page<ClientVisitFullInfoDto> getAllVisitFullInfo(Pageable pageable) {
-//
-//        log.info("method getAllVisitFullInfo");
-//        return visitFullInfoRepository.findAll(pageable)
-//                .map(visit -> ClientVisitFullInfoDto.builder()
-//                        .visitId(visit.getVisitId())
-//                        .doctor(visit.getDoctor())
-//                        .animal(visit.getAnimal())
-//                        .visitDate(visit.getVisitDate())
-//                        .build());
-//
-//    }
 
 
     @Override
@@ -140,13 +129,14 @@ public class ClientVisitServiceImpl implements ClientVisitService {
     }
 
     @Override
-    public VisitInfoDto getVisitById(UUID id) {
+    @Cacheable(value = "visit_client_cache", key = "#visitId")
+    public VisitInfoDto getVisitById(UUID visitId) {
 
         log.info("method getVisitById");
-        log.info("try get visit to DB : {}", id);
-        ClientVisit findClientVisit = clientVisitRepository.findByVisitId(id);
+        log.info("try get visit to DB : {}", visitId);
+        ClientVisit findClientVisit = clientVisitRepository.findByVisitId(visitId);
         if (findClientVisit == null) {
-            throw new VisitNotFoundException("Visit not found with id: " + id);
+            throw new VisitNotFoundException("Visit not found with id: " + visitId);
         }
 
         log.info("successfully visit to DB : {}", findClientVisit);
@@ -165,32 +155,9 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
     }
 
-//    /// /////////////////////
-//    @Override
-//    public VisitFullInfoDto getFullVisitById(UUID id) {
-//        log.info("method getFullVisitById");
-//        log.info("try get visit to DB : {}", id);
-//        VisitFullInfo findVisit = visitFullInfoRepository.findByVisitId(id);
-//        if (findVisit == null) {
-//            throw new VisitNotFoundException("Visit not found with id: " + id);
-//        }
-//
-//        log.info("successfully visit to DB : {}", findVisit);
-//        VisitFullInfoDto visitFullInfoDto = VisitFullInfoDto.builder()
-//                .visitId(findVisit.getVisitId())
-//                .owner(findVisit.getOwner())
-//                .doctor(findVisit.getDoctor())
-//                .animal(findVisit.getAnimal())
-//                .reasonRequest(findVisit.getReasonRequest())
-//                .visitDate(findVisit.getVisitDate())
-//                .build();
-//
-//        log.info("return visitFullInfoDto : {}", visitFullInfoDto);
-//        return visitFullInfoDto;
-//    }
-
 
     @Override
+    @CachePut(value = "visit_client_cache", key = "#visitId")
     public VisitInfoDto updateVisitById(UpdateVisitDto updateVisitDto, UUID visitId) {
 
         log.info("method updateVisitById");
@@ -223,6 +190,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
     }
 
     @Override
+    @CacheEvict(value = "visit_client_cache", key = "#visitId")
     public void deleteVisit(UUID visitId) {
 
         log.info("method deleteVisit");

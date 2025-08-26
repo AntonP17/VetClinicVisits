@@ -11,14 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "full_info_visit", indexes = {
-        @Index(columnList = "visitId", name = "client_visit_uuid_index"),
-        @Index(columnList = "ownerId", name = "owner_visit_uuid_index"),
-        @Index(columnList = "doctorId", name = "doctor_visit_uuid_index"),
-        @Index(columnList = "animalId", name = "animal_visit_uuid_index"),
-        @Index(columnList = "doctorId, ownerId", name = "ownerId_doctor_uuid_index"),
-        @Index(columnList = "ownerId, animalId", name = "animal_owner_uuid_index")
-})
+@Table(name = "full_info_visit")
 @Builder
 @Data
 @NoArgsConstructor
