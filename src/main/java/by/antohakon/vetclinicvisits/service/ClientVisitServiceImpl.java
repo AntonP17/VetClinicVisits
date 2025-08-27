@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -190,7 +191,10 @@ public class ClientVisitServiceImpl implements ClientVisitService {
     }
 
     @Override
-    @CacheEvict(value = "visit_client_cache", key = "#visitId")
+    @Caching(evict = {
+            @CacheEvict(value = "full_visit_client_cache", key = "#visitId"),
+            @CacheEvict(value = "visit_client_cache", key = "#visitId")
+    })
     public void deleteVisit(UUID visitId) {
 
         log.info("method deleteVisit");

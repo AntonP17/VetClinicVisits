@@ -75,8 +75,7 @@ public class VisitFullInfoServiceImpl implements VisitFullInfoService {
                         .build());
     }
 
-    @Override /// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // вот тут кейс с кэшем визита посмотреть когда из двух микров кэшируется то при удалении из одного этот может остаться
+    @Override
     @Cacheable(value = "full_visit_client_cache", key = "#visitId")
     public VisitFullInfoDto getFullVisitById(UUID visitId) {
 
