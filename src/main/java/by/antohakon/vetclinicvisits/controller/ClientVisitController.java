@@ -3,6 +3,7 @@ package by.antohakon.vetclinicvisits.controller;
 import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.service.ClientVisitServiceImpl;
 import by.antohakon.vetclinicvisits.service.VisitFullInfoServiceImpl;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "client_visit_controller")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/visits")
