@@ -80,7 +80,7 @@ Content-Type: application/json
 }
 ```
 
-**Доступные роли:** `ADMIN`, `SURGEON`, `VETERINARIAN`, `ASSISTANT`
+**Доступные роли:** `ADMIN`, `SURGEON`, `THERAPIST`, `ASSISTENT`
 
 #### ✏️ Обновление сотрудника
 ```http
@@ -135,7 +135,7 @@ Content-Type: application/json
 }
 ```
 
-**Доступные типы животных:** `DOG`, `CAT`, `BIRD`, `REPTILE`, `RODENT`, `OTHER`
+**Доступные типы животных:** `DOG`, `CAT`, `BIRD`, `REPTILE`, `RODENT`, `AMPHIBIAN`
 
 #### ✏️ Обновление данных
 **Владелец:**
