@@ -7,16 +7,15 @@
 ### 🔗 Быстрые ссылки
 - **Docker Deployment**: `docker compose -f docker-compose-deploy.yaml up -d`
 
-## 📚 Документация по сервисам
+## 📚 Документация API
+### 🎪 Микросервисы
 
-| Сервис | Порт | Swagger UI                                                | Описание |
-|--------|------|-----------------------------------------------------------|----------|
-| **Visits** | `8080` | [📖 OpenAPI](http://localhost:8080/swagger-ui/index.html)            | Управление визитами |
-| **Clients** | `8081` | [📖 OpenAPI](http://localhost:8081/swagger-ui/index.html) | Клиенты и животные |
-| **Employees** | `8082` | [📖 OpenAPI](http://localhost:8082/swagger-ui/index.html) | Персонал клиники |
-| **Analytics** | `8085` | [📖 OpenAPI](http://localhost:8085/swagger-ui/index.html) | Аналитика |
-
-
+| Сервис | Порт | Репозиторий | Swagger UI | Описание |
+|--------|------|-------------|------------|----------|
+| **Visits** | `8080` | [📦 VetClinicVisits](https://github.com/AntonP17/VetClinicVisits) | [🔗 OpenAPI](http://localhost:8080/swagger-ui/index.html) | Управление визитами |
+| **Employees** | `8082` | [📦 vetClinicEmployes](https://github.com/AntonP17/vetClinicEmployes) | [🔗 OpenAPI](http://localhost:8082/swagger-ui/index.html) | Персонал клиники |
+| **Clients** | `8081` | [📦 vetClinicCLients](https://github.com/AntonP17/vetClinicCLients) | [🔗 OpenAPI](http://localhost:8081/swagger-ui/index.html) | Клиенты и животные |
+| **Analytics** | `8085` | [📦 vetClinicAnalitic](https://github.com/AntonP17/vetClinicAnalitic) | [🔗 OpenAPI](http://localhost:8085/swagger-ui/index.html) | Аналитика |
 ---
 
 ## 🚀 Сервисы системы
