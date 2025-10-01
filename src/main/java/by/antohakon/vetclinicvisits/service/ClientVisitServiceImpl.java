@@ -74,6 +74,33 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         return visitInfoDto;
     }
 
+    public Page<ClientVisitDto> getAllByFilter(Filter filter, Pageable pageable) {
+
+        log.info("method getAllByFilter");
+        Page<ClientVisit> findByFilter = clientVisitRepository.findAllByFilter(
+                filter.visitId(),
+                filter.ownerId(),
+                filter.doctorId(),
+                filter.animalId(),
+                pageable);
+
+        log.info("our list : {}", findByFilter);
+
+        Page<ClientVisitDto> returnList = findByFilter
+                .map(visit -> ClientVisitDto.builder()
+                        .visitId(visit.getVisitId())
+                        .doctorId(visit.getDoctorId())
+                        .animalId(visit.getAnimalId())
+                        .visitDate(visit.getVisitDate())
+                        .build());
+
+        log.info("return list : {}", returnList);
+
+        return returnList;
+
+
+    }
+
     @Override
     public Page<ClientVisitDto> getAllVisits(Pageable pageable) {
 

@@ -22,6 +22,23 @@ public class ClientVisitController {
     private final ClientVisitServiceImpl clientVisitService;
     private final VisitFullInfoServiceImpl visitFullInfoService;
 
+    @GetMapping("/filter")
+    @ResponseStatus(value = HttpStatus.OK)
+    public Page<ClientVisitDto> getAllByFilter(@RequestParam(required = false, value = "visitId") UUID visitId,
+                                               @RequestParam(required = false, value = "ownerId") UUID ownerId,
+                                               @RequestParam(required = false, value = "doctorId") UUID doctorId,
+                                               @RequestParam(required = false, value = "animalId") UUID animalId,
+                                               @PageableDefault(size = 5) Pageable pageable) {
+        Filter filter = Filter.builder()
+                .visitId(visitId)
+                .ownerId(ownerId)
+                .doctorId(doctorId)
+                .animalId(animalId)
+                .build();
+
+        return clientVisitService.getAllByFilter(filter, pageable);
+    }
+
     @GetMapping
     @ResponseStatus(value = HttpStatus.OK)
     public Page<ClientVisitDto> getAllClientVisits(@PageableDefault(size = 5) Pageable pageable) {
