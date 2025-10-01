@@ -5,8 +5,17 @@
 врачами и визитами.
 
 ### 🔗 Быстрые ссылки
-- **Swagger Documentation**: http://localhost:8080/swagger-ui/index.html
 - **Docker Deployment**: `docker compose -f docker-compose-deploy.yaml up -d`
+
+## 📚 Документация по сервисам
+
+| Сервис | Порт | Swagger UI                                                | Описание |
+|--------|------|-----------------------------------------------------------|----------|
+| **Visits** | `8080` | [📖 OpenAPI](http://localhost:8080/swagger-ui/index.html)            | Управление визитами |
+| **Clients** | `8081` | [📖 OpenAPI](http://localhost:8081/swagger-ui/index.html) | Клиенты и животные |
+| **Employees** | `8082` | [📖 OpenAPI](http://localhost:8082/swagger-ui/index.html) | Персонал клиники |
+| **Analytics** | `8085` | [📖 OpenAPI](http://localhost:8085/swagger-ui/index.html) | Аналитика |
+
 
 ---
 
