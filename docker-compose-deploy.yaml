@@ -28,90 +28,12 @@ services:
       POSTGRES_PASSWORD: 297032
     ports:
       - "5431:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    command: >
-      postgres 
-      -c wal_level=replica 
-      -c max_wal_senders=10 
-      -c max_replication_slots=5
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres -d DB-application" ]
       interval: 5s
       timeout: 10s
       retries: 10
       start_period: 10s
-
-
-  postgres-employes-rep1:
-    image: postgres:15
-    user: root
-    depends_on:
-      - postgres-employes
-    environment:
-      POSTGRES_DB: vetclinic
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 297032
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_replica_1_data:/var/lib/postgresql/data
-    command: >
-      bash -c "
-              # Ждем мастера
-              until pg_isready -h postgres-employes -p 5432; do
-                echo 'Waiting for master...'
-                sleep 2
-              done
-
-              # Очищаем директорию
-              rm -rf /var/lib/postgresql/data/*
-
-              # Делаем бэкап
-              su - postgres -c 'PGPASSWORD=297032 pg_basebackup -h postgres-employes -p 5432 -U postgres -D /var/lib/postgresql/data -P -R -X stream'
-
-              # Исправляем права
-              chmod 700 /var/lib/postgresql/data
-              chown -R postgres:postgres /var/lib/postgresql/data
-
-              # Запускаем PostgreSQL с полным путем
-              exec su - postgres -c '/usr/lib/postgresql/15/bin/postgres -c hot_standby=on -D /var/lib/postgresql/data'
-            "1
-
-  postgres-employes-rep2:
-    image: postgres:15
-    user: root
-    depends_on:
-      - postgres-employes
-    environment:
-      POSTGRES_DB: vetclinic
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 297032
-    ports:
-      - "5430:5432"
-    volumes:
-      - postgres_replica_1_data:/var/lib/postgresql/data
-    command: >
-      bash -c "
-              # Ждем мастера
-              until pg_isready -h postgres-employes -p 5432; do
-                echo 'Waiting for master...'
-                sleep 2
-              done
-
-              # Очищаем директорию
-              rm -rf /var/lib/postgresql/data/*
-
-              # Делаем бэкап
-              su - postgres -c 'PGPASSWORD=297032 pg_basebackup -h postgres-employes -p 5432 -U postgres -D /var/lib/postgresql/data -P -R -X stream'
-
-              # Исправляем права
-              chmod 700 /var/lib/postgresql/data
-              chown -R postgres:postgres /var/lib/postgresql/data
-
-              # Запускаем PostgreSQL с полным путем
-              exec su - postgres -c '/usr/lib/postgresql/15/bin/postgres -c hot_standby=on -D /var/lib/postgresql/data'
-            "1    
 
   postgres-clients:
     container_name: postgres-clients
@@ -240,7 +162,7 @@ services:
 
   kafka-1:
     container_name: kafka-node-1
-    image: bitnami/kafka:latest
+    image: bitnamilegacy/kafka:latest
     ports:
       - "9092:9092"
     environment:
@@ -254,7 +176,7 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
   kafka-2:
-    image: bitnami/kafka:latest
+    image: bitnamilegacy/kafka:latest
     container_name: kafka-node-2
     ports:
       - "9094:9094"
@@ -269,7 +191,7 @@ services:
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
 
   kafka-3:
-    image: bitnami/kafka:latest
+    image: bitnamilegacy/kafka:latest
     container_name: kafka-node-3
     ports:
       - "9096:9096"
@@ -282,8 +204,3 @@ services:
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-3:9096
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
-
-volumes:
-  postgres_data:
-  postgres_replica_1_data:
-  postgres_replica_2_data:
