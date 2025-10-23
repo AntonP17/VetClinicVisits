@@ -2,6 +2,33 @@ version: "3.9"
 
 services:
 
+  eureka-server:
+    image: antonp17/eureka-server:1.0.0
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://eureka-server:8761/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  api-gateway:
+    image: antonp17/api-gateway-point:1.0.1
+    container_name: api-gateway-point-clinic
+    ports:
+      - "8181:8181"
+    depends_on:
+     - eureka-server
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_CLIENT_REGISTER-WITH-EUREKA: "true"
+      EUREKA_CLIENT_FETCH-REGISTRY: "true"
+      EUREKA_INSTANCE_PREFER-IP-ADDRESS: "true"
+
+
+
   postgres-analitics:
     container_name: postgres-analitics
     image: postgres:latest
@@ -95,13 +122,14 @@ services:
 
   vet-clinic-analitics:
     container_name: vet-clinic-analitics
-    image: antonp17/vet-clinic-analitics:1.0.1
+    image: antonp17/vet-clinic-analitics:1.0.2
     depends_on:
       - redis
       - postgres-analitics
       - kafka-1
       - kafka-2
       - kafka-3
+      - eureka-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-analitics:5432/DB-application?currentSchema=vet_visits_history_status
       SPRING_DATASOURCE_USERNAME: postgres
@@ -111,6 +139,7 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9094,kafka-3:9096
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     ports:
       - "8085:8085"
 
