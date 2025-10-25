@@ -101,13 +101,14 @@ services:
 
   vet-clinic-visits:
     container_name: vet-clinic-visits
-    image: antonp17/vet-clinic-visit:1.0.1
+    image: antonp17/vet-clinic-visit:1.0.2
     depends_on:
       - redis
       - postgres-visits
       - kafka-1
       - kafka-2
       - kafka-3
+      - eureka-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-visits:5432/DB-application
       SPRING_DATASOURCE_USERNAME: postgres
@@ -117,6 +118,7 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9094,kafka-3:9096
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     ports:
       - "8080:8080"
 
@@ -146,13 +148,14 @@ services:
 
   vet-clinic-employes:
     container_name: vet-clinic-employes
-    image: antonp17/vet-clinic-employes:1.0.1
+    image: antonp17/vet-clinic-employes:1.0.2
     depends_on:
       - redis
       - postgres-employes
       - kafka-1
       - kafka-2
       - kafka-3
+      - eureka-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-employes:5432/DB-application?currentSchema=vet_doctors
       SPRING_DATASOURCE_USERNAME: postgres
@@ -162,6 +165,7 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9094,kafka-3:9096
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     ports:
       - "8082:8082"
 
@@ -169,13 +173,14 @@ services:
 
   vet-clinic-clients:
     container_name: vet-clinic-clients
-    image: antonp17/vet-clinic-clients:1.0.3
+    image: antonp17/vet-clinic-clients:1.0.4
     depends_on:
       - redis
       - postgres-clients
       - kafka-1
       - kafka-2
       - kafka-3
+      - eureka-server
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-clients:5432/DB-application?currentSchema=vet_clients
       SPRING_DATASOURCE_USERNAME: postgres
@@ -185,6 +190,7 @@ services:
       SPRING_DATA_REDIS_HOST: redis
       SPRING_DATA_REDIS_PORT: 6379
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9094,kafka-3:9096
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
     ports:
       - "8081:8081"
 
