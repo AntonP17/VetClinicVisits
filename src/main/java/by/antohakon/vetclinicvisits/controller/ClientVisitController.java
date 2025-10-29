@@ -4,6 +4,7 @@ import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.service.ClientVisitServiceImpl;
 import by.antohakon.vetclinicvisits.service.VisitFullInfoServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -84,13 +85,13 @@ public class ClientVisitController {
 
     @PostMapping
     @ResponseStatus(value = HttpStatus.CREATED)
-    public VisitInfoDto createClientVisit(@RequestBody CreateVisitDto createVisitDto) {
+    public VisitInfoDto createClientVisit(@RequestBody @Valid CreateVisitDto createVisitDto) {
         return clientVisitService.createVisit(createVisitDto);
     }
 
     @PutMapping("/{visitId}")
     @ResponseStatus(value = HttpStatus.OK)
-    public VisitInfoDto updateClientVisit(@PathVariable UUID visitId, @RequestBody UpdateVisitDto updateVisitDto) {
+    public VisitInfoDto updateClientVisit(@PathVariable UUID visitId, @RequestBody @Valid UpdateVisitDto updateVisitDto) {
         return clientVisitService.updateVisitById(updateVisitDto, visitId);
     }
 
