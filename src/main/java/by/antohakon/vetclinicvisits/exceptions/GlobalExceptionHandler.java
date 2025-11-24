@@ -37,6 +37,18 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(KafkaSendMessageException.class)
+    public ResponseEntity<ErrorResponse> handleKafkaSendMessageException(KafkaSendMessageException ex) {
+
+        log.error("Ошибка отпарвки сообщения в Kafka: {}", ex.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse(
+                   ex.getClass().getSimpleName(),
+                   ex.getMessage()
+                ));
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
 
@@ -75,6 +87,8 @@ public class GlobalExceptionHandler {
                 ));
 
     }
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleOtherExceptions(Exception ex) {

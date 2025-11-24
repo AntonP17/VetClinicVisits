@@ -4,6 +4,7 @@ import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
 import by.antohakon.vetclinicvisits.entity.Status;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
+import by.antohakon.vetclinicvisits.exceptions.KafkaSendMessageException;
 import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
@@ -30,6 +31,7 @@ public class Orchestrator {
     private final VisitFullInfoRepository visitFullInfoRepository;
     private final ClientVisitRepository clientVisitRepository;
 
+    @Transactional
     public void sendMessage(VisitInfoDto visitInfoDto) {
 
         try {
@@ -42,12 +44,38 @@ public class Orchestrator {
                     .build();
 
             String jsonAnalitics = objectMapper.writeValueAsString(visitStatusEventDto);
-            kafkaTemplate.send("animals_owners", visitInfoDto.visitId().toString(), json);
-            kafkaTemplate.send("doctors", visitInfoDto.visitId().toString(), json);
-            kafkaTemplate.send("analytics", visitInfoDto.visitId().toString(), jsonAnalitics);
 
-            log.info("send message Kafka: {}", json);
-            log.info("send message Analitic: {}", jsonAnalitics);
+            kafkaTemplate.send("animals_owners", visitInfoDto.visitId().toString(), json)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send message to Kafka (animals_owners)", ex);
+                            throw new KafkaSendMessageException("ошибка отправки сообщения в animals_owners");
+                        } else {
+                            log.info("Message sent to Kafka (animals_owners) successfully");
+                        }
+                    });
+
+            kafkaTemplate.send("doctors", visitInfoDto.visitId().toString(), json)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send message to Kafka (doctors)", ex);
+                            throw new KafkaSendMessageException("ошибка отправки сообщения в (doctors)");
+                        } else {
+                            log.info("Message sent to Kafka (doctors) successfully");
+                        }
+                    });
+
+
+            kafkaTemplate.send("analytics", visitInfoDto.visitId().toString(), jsonAnalitics)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send message to Kafka (analytics)", ex);
+                            throw new KafkaSendMessageException("ошибка отправки сообщения в (analytics)");
+                        } else {
+                            log.info("Message sent to Kafka (analytics) successfully");
+                        }
+                    });
+
         } catch (JsonProcessingException e) {
             log.error("Failed to serialize order: {}", e.getMessage());
         }
