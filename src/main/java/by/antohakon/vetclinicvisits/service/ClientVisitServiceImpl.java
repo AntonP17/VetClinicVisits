@@ -7,8 +7,6 @@ import by.antohakon.vetclinicvisits.event.Orchestrator;
 import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
 import by.antohakon.vetclinicvisits.repository.VisitFullInfoRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -16,10 +14,9 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -34,32 +31,29 @@ public class ClientVisitServiceImpl implements ClientVisitService {
     private final Orchestrator orchestrator;
 
     @Override
+    @Transactional
     public VisitInfoDto createVisit(CreateVisitDto createVisitDto) {
 
         log.info("method createVisit");
         log.info("try save visit to DB : {}", createVisitDto);
-        ClientVisit clientVisit = ClientVisit.builder()
-                .visitId(UUID.randomUUID())
-                .ownerId(createVisitDto.ownerId())
-                .doctorId(createVisitDto.doctorId())
-                .animalId(createVisitDto.animalId())
-                .reasonRequest(createVisitDto.reasonRequest())
-                .visitDate(LocalDateTime.now())
-                .build();
+        ClientVisit clientVisit = getClientVisit(createVisitDto);
 
         clientVisitRepository.save(clientVisit);
-        visitFullInfoRepository.save(VisitFullInfo.builder()
-                .visitId(clientVisit.getVisitId())
-                .owner(null)
-                .doctor(null)
-                .animal(null)
-                .reasonRequest(clientVisit.getReasonRequest())
-                .visitDate(clientVisit.getVisitDate())
-                .build());
+
+        visitFullInfoRepository.save(getVisitFullInfo(clientVisit));
 
         log.info("successfully visit to DB : {}", clientVisit);
 
-        VisitInfoDto visitInfoDto = VisitInfoDto.builder()
+        VisitInfoDto visitInfoDto = getVisitInfoDto(clientVisit);
+
+        orchestrator.sendMessage(visitInfoDto);
+
+        log.info("return visitDto : {}", visitInfoDto);
+        return visitInfoDto;
+    }
+
+    private VisitInfoDto getVisitInfoDto(ClientVisit clientVisit) {
+        return VisitInfoDto.builder()
                 .visitId(clientVisit.getVisitId())
                 .ownerId(clientVisit.getOwnerId())
                 .doctorId(clientVisit.getDoctorId())
@@ -67,11 +61,28 @@ public class ClientVisitServiceImpl implements ClientVisitService {
                 .reasonRequest(clientVisit.getReasonRequest())
                 .visitDate(clientVisit.getVisitDate())
                 .build();
+    }
 
-        orchestrator.sendMessage(visitInfoDto);
+    private VisitFullInfo getVisitFullInfo(ClientVisit clientVisit) {
+        return VisitFullInfo.builder()
+                .visitId(clientVisit.getVisitId())
+                .owner(null)
+                .doctor(null)
+                .animal(null)
+                .reasonRequest(clientVisit.getReasonRequest())
+                .visitDate(clientVisit.getVisitDate())
+                .build();
+    }
 
-        log.info("return visitDto : {}", visitInfoDto);
-        return visitInfoDto;
+    private ClientVisit getClientVisit(CreateVisitDto createVisitDto) {
+        return ClientVisit.builder()
+                .visitId(UUID.randomUUID())
+                .ownerId(createVisitDto.ownerId())
+                .doctorId(createVisitDto.doctorId())
+                .animalId(createVisitDto.animalId())
+                .reasonRequest(createVisitDto.reasonRequest())
+                .visitDate(LocalDateTime.now())
+                .build();
     }
 
     @Override
@@ -141,14 +152,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         }
 
         log.info("successfully visit to DB : {}", findClientVisit);
-        VisitInfoDto visitInfoDto = VisitInfoDto.builder()
-                .visitId(findClientVisit.getVisitId())
-                .ownerId(findClientVisit.getOwnerId())
-                .doctorId(findClientVisit.getDoctorId())
-                .animalId(findClientVisit.getAnimalId())
-                .reasonRequest(findClientVisit.getReasonRequest())
-                .visitDate(findClientVisit.getVisitDate())
-                .build();
+        VisitInfoDto visitInfoDto = getVisitInfoDto(findClientVisit);
 
         log.info("return visitDto : {}", visitInfoDto);
 
@@ -177,14 +181,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
         visitFullInfoRepository.save(findVisitFullInfo);
         log.info("successfully update visit to DB : {}", findClientVisit);
 
-        VisitInfoDto visitInfoDto = VisitInfoDto.builder()
-                .visitId(findClientVisit.getVisitId())
-                .ownerId(findClientVisit.getOwnerId())
-                .doctorId(findClientVisit.getDoctorId())
-                .animalId(findClientVisit.getAnimalId())
-                .reasonRequest(updateVisitDto.reasonRequest())
-                .visitDate(findClientVisit.getVisitDate())
-                .build();
+        VisitInfoDto visitInfoDto = getVisitInfoDto(findClientVisit);
         log.info("return visitDto : {}", visitInfoDto);
         return visitInfoDto;
 
