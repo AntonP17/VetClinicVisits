@@ -124,7 +124,7 @@ services:
 
   vet-clinic-analitics:
     container_name: vet-clinic-analitics
-    image: antonp17/vet-clinic-analitics:1.0.2
+    image: antonp17/vet-clinic-analitics:1.0.3
     depends_on:
       - redis
       - postgres-analitics
@@ -148,7 +148,7 @@ services:
 
   vet-clinic-employes:
     container_name: vet-clinic-employes
-    image: antonp17/vet-clinic-employes:1.0.3
+    image: antonp17/vet-clinic-employes:1.0.4
     depends_on:
       - redis
       - postgres-employes
@@ -173,7 +173,7 @@ services:
 
   vet-clinic-clients:
     container_name: vet-clinic-clients
-    image: antonp17/vet-clinic-clients:1.0.6
+    image: antonp17/vet-clinic-clients:1.0.7
     depends_on:
       - redis
       - postgres-clients

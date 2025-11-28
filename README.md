@@ -10,17 +10,22 @@
 ## 📚 Документация API
 ### 🎪 Микросервисы
 
-| Сервис | Порт | Репозиторий | Swagger UI | Описание |
-|--------|------|-------------|------------|----------|
-| **Visits** | `8080` | [📦 VetClinicVisits](https://github.com/AntonP17/VetClinicVisits) | [🔗 OpenAPI](http://localhost:8080/swagger-ui/index.html) | Управление визитами |
-| **Employees** | `8082` | [📦 vetClinicEmployes](https://github.com/AntonP17/vetClinicEmployes) | [🔗 OpenAPI](http://localhost:8082/swagger-ui/index.html) | Персонал клиники |
-| **Clients** | `8081` | [📦 vetClinicCLients](https://github.com/AntonP17/vetClinicCLients) | [🔗 OpenAPI](http://localhost:8081/swagger-ui/index.html) | Клиенты и животные |
-| **Analytics** | `8085` | [📦 vetClinicAnalitic](https://github.com/AntonP17/vetClinicAnalitic) | [🔗 OpenAPI](http://localhost:8085/swagger-ui/index.html) | Аналитика |
+| Сервис         | Порт   | Репозиторий                                                          | Swagger UI                                                | Описание            |
+|----------------|--------|----------------------------------------------------------------------|-----------------------------------------------------------|---------------------|
+| **Visits**     | `8080` | [📦 VetClinicVisits](https://github.com/AntonP17/VetClinicVisits)    | [🔗 OpenAPI](http://localhost:8080/swagger-ui/index.html) | Управление визитами |
+| **Employees**  | `8082` | [📦 vetClinicEmployes](https://github.com/AntonP17/vetClinicEmployes) | [🔗 OpenAPI](http://localhost:8082/swagger-ui/index.html) | Персонал клиники    |
+| **Clients**    | `8081` | [📦 vetClinicCLients](https://github.com/AntonP17/vetClinicCLients)  | [🔗 OpenAPI](http://localhost:8081/swagger-ui/index.html) | Клиенты и животные  |
+| **Analytics**  | `8085` | [📦 vetClinicAnalitic](https://github.com/AntonP17/vetClinicAnalitic) | [🔗 OpenAPI](http://localhost:8085/swagger-ui/index.html) | Аналитика           | 
+| **ApiGateWay** | `8181` | [📦 apiGateWay](https://github.com/AntonP17/apiGatewayPointClinic)   | -                                                         | Единая точка входа  |
+
 ---
 
 ## 🚀 Сервисы системы
 
-### 1. 📅 **VetClinicVisits** (`:8080`)
+### 1. 📅 **VetClinicVisits** (`:8080`) 
+
+**Доступ через Gateway: http://localhost:8181/vetclinicvisits/api/...**
+
 *Управление записями на визиты и расписанием*
 
 #### 🔍 Получение данных
@@ -68,6 +73,10 @@ DELETE /api/visits/{visitId}
 ---
 
 ### 2. 👨‍⚕️ **VetClinicEmployees** (`:8082`)
+
+**Доступ через Gateway: http://localhost:8181/vetclinicemployes/api/...**
+
+
 *Управление персоналом клиники*
 
 #### 🔍 Получение сотрудников
@@ -110,6 +119,9 @@ DELETE /api/employees/{employeeId}
 ---
 
 ### 3. 🐾 **VetClinicClients** (`:8081`)
+
+**Доступ через Gateway: http://localhost:8181/vetclinitclients/api/...**
+
 *Управление клиентами и их питомцами*
 
 #### 🔍 Получение данных
@@ -178,6 +190,9 @@ DELETE /api/owners/{ownerId}
 ---
 
 ### 4. 📊 **VetClinicAnalytics** (`:8085`)
+
+**Доступ через Gateway: http://localhost:8181/visitsanalitics/api/...**
+
 *Аналитика и мониторинг записей*
 
 #### 🔍 Получение аналитики
