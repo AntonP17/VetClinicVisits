@@ -101,7 +101,7 @@ services:
 
   vet-clinic-visits:
     container_name: vet-clinic-visits
-    image: antonp17/vet-clinic-visit:1.0.3
+    image: antonp17/vet-clinic-visit:1.0.4
     depends_on:
       - redis
       - postgres-visits
