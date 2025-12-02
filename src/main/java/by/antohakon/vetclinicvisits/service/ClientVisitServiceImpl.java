@@ -3,6 +3,7 @@ package by.antohakon.vetclinicvisits.service;
 import by.antohakon.vetclinicvisits.dto.*;
 import by.antohakon.vetclinicvisits.entity.ClientVisit;
 import by.antohakon.vetclinicvisits.entity.VisitFullInfo;
+import by.antohakon.vetclinicvisits.event.MyProducer;
 import by.antohakon.vetclinicvisits.event.Orchestrator;
 import by.antohakon.vetclinicvisits.exceptions.VisitNotFoundException;
 import by.antohakon.vetclinicvisits.repository.ClientVisitRepository;
@@ -28,7 +29,8 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
     private final ClientVisitRepository clientVisitRepository;
     private final VisitFullInfoRepository visitFullInfoRepository;
-    private final Orchestrator orchestrator;
+  //  private final Orchestrator orchestrator;
+    private final MyProducer myProducer;
 
     @Override
     @Transactional
@@ -46,7 +48,7 @@ public class ClientVisitServiceImpl implements ClientVisitService {
 
         VisitInfoDto visitInfoDto = getVisitInfoDto(clientVisit);
 
-        orchestrator.sendMessage(visitInfoDto);
+        myProducer.sendMessage(visitInfoDto);
 
         log.info("return visitDto : {}", visitInfoDto);
         return visitInfoDto;

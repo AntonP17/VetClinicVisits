@@ -55,6 +55,16 @@ public class Orchestrator {
                         }
                     });
 
+            kafkaTemplate.send("visit-topic-create", visitInfoDto.visitId().toString(), json)
+                    .whenComplete((result, ex) -> {
+                        if (ex != null) {
+                            log.error("Failed to send message to Kafka (visit-topic)", ex);
+                            throw new KafkaSendMessageException("ошибка отправки сообщения в visit-topic");
+                        } else {
+                            log.info("Message sent to Kafka (visit-topic) successfully");
+                        }
+                    });
+
             kafkaTemplate.send("doctors", visitInfoDto.visitId().toString(), json)
                     .whenComplete((result, ex) -> {
                         if (ex != null) {
