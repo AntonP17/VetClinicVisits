@@ -89,21 +89,10 @@ public class MyConsumer {
 
     }
 
-//    // exception doctors
-//    @KafkaListener(
-//            topics = "${kafka.topic.comand.delete.doctor}",
-//            groupId = "${spring.kafka.consumer.group-id}"
-//    )
-//    public void listenDoctorDeleteStatus(String message) {
-//
-//
-//
-//    }
-
-    // exception client
+    // exceptions
     @SneakyThrows
     @KafkaListener(
-            topics = "${kafka.topic.comand.delete.client}",
+            topics = "${kafka.topic.comand.delete}",
             groupId = "${spring.kafka.consumer.group-id}"
     )
     public void listenClientDeleteStatus(String messageexception) {
