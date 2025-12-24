@@ -119,17 +119,17 @@ services:
 
   vet-clinic-orchestrator:
     container_name: vet-clinic-orchestrator
-    image:  antonp17/vet-clinic-orchestrator:1.0.0
+    image:  antonp17/vet-clinic-orchestrator:1.0.1
     depends_on:
       - postgres-orchestrator
       - kafka-1
       - kafka-2
       - kafka-3
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-visits:5432/DB-application
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-orchestrator:5432/DB-application?currentSchema=vet_orchestrator
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 297032
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
       SPRING_LIQUIBASE_DEFAULT_SCHEMA: public
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka-1:9092,kafka-2:9094,kafka-3:9096
     ports:
@@ -146,7 +146,7 @@ services:
       - kafka-3
       - eureka-server
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-visits:5432/DB-application
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-visits:5432/DB-application?currentSchema=vet_visits
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 297032
       SPRING_JPA_HIBERNATE_DDL_AUTO: none
